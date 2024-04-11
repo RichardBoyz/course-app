@@ -1,13 +1,19 @@
+import 'package:course/arguments/edit_course_page.dart';
 import 'package:flutter/material.dart';
 import 'package:course/services/course/course_service.dart';
 import 'package:course/widgets/course_form.dart';
 
-class CreateCoursePage extends StatefulWidget {
+import '../models/course_model.dart';
+
+class EditCoursePage extends StatefulWidget {
+  final EditCoursePageArguments? args;
+  const EditCoursePage({super.key, required this.args});
+
   @override
-  _CreateCoursePageState createState() => _CreateCoursePageState();
+  _EditCoursePageState createState() => _EditCoursePageState();
 }
 
-class _CreateCoursePageState extends State<CreateCoursePage> {
+class _EditCoursePageState extends State<EditCoursePage> {
   String selectedDay = '1';
   String selectedStartHour = '00';
   String selectedStartMinute = '00';
@@ -18,10 +24,35 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
   bool _errorName = false;
 
   @override
+  void initState() {
+    super.initState();
+    _fetchCourseData();
+  }
+
+  Future<void> _fetchCourseData() async {
+    final courseId = widget.args!.courseId;
+    try {
+      print('start');
+      Course fetchedCourse = await getCourse(courseId);
+      Map<String, String> courseTime = fetchedCourse.getTimePeriod();
+      setState(() {
+        _nameController.text = fetchedCourse.name;
+        selectedDay = fetchedCourse.getTimeWeek();
+        selectedStartHour = courseTime['startHour']!;
+        selectedStartMinute = courseTime['startMinute']!;
+        selectedEndHour = courseTime['endHour']!;
+        selectedEndMinute = courseTime['endMinute']!;
+      });
+    } catch (error) {
+      print('Error fetching course data: $error');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('建立課程'),
+        title: const Text('編輯課程'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -32,8 +63,8 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
           selectedStartMinute: selectedStartMinute,
           selectedEndHour: selectedEndHour,
           selectedEndMinute: selectedEndMinute,
-          confirmText: '建立課程',
-          onPressed: _createCourse,
+          confirmText: '更新課程',
+          onPressed: _updateCourse,
           errorName: _errorName,
           onSelectedDayChanged: (p0) => setState(() {
             selectedDay = p0 as String;
@@ -55,7 +86,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
     );
   }
 
-  Future<void> _createCourse() async {
+  Future<void> _updateCourse() async {
     String courseName = _nameController.text;
     setState(() {
       _errorName = courseName.isEmpty;
@@ -66,32 +97,28 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
     }
     String timeText =
         '$selectedStartHour:$selectedStartMinute-$selectedEndHour:$selectedEndMinute';
-    String message = '建立成功';
+    String message = '更新成功';
     try {
-      var isCreateSuccessed = await createCourse({
+      var updatedCourse = await updateCourse(widget.args!.courseId, {
         'name': courseName,
         'time_period': timeText,
         'time_week': int.parse(selectedDay),
       });
-
-      if (isCreateSuccessed) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('建立成功'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-        Navigator.pop(context);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('建立失敗'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('更新成功'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      Navigator.pop(context, {'isEdited': true, 'course': updatedCourse});
     } catch (error) {
       print(error);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('建立失敗'),
+          duration: Duration(seconds: 2),
+        ),
+      );
     }
   }
 }

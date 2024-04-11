@@ -28,10 +28,18 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    final response =
+    final isLogined =
         await userAuth(_emailController.text, _passwordController.text);
 
-    Navigator.pushReplacementNamed(context, '/lobby');
+    if (isLogined) {
+      Navigator.pushReplacementNamed(context, '/lobby');
+    } else {
+      SnackBar snackBar = const SnackBar(
+        content: Text('登入失敗'),
+        duration: Duration(seconds: 2),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
   }
 
   @override

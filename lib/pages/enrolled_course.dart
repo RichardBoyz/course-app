@@ -4,16 +4,16 @@ import 'package:course/services/course/course_service.dart';
 import 'package:course/widgets/course_tile.dart';
 import 'package:flutter/material.dart';
 
-class SearchCoursePage extends StatefulWidget {
-  const SearchCoursePage({super.key});
+class EnrolledCoursePage extends StatefulWidget {
+  const EnrolledCoursePage({super.key});
 
   @override
-  State<SearchCoursePage> createState() => _SearchCoursePageState();
+  State<EnrolledCoursePage> createState() => _EnrolledCoursePageState();
 }
 
-class _SearchCoursePageState extends State<SearchCoursePage> {
+class _EnrolledCoursePageState extends State<EnrolledCoursePage> {
   Future<void> _getCourse() async {
-    var courses = await getCourses({});
+    var courses = await getEnrolledCourses();
     setState(() {
       courseList = courses;
     });
@@ -34,16 +34,7 @@ class _SearchCoursePageState extends State<SearchCoursePage> {
 
   List<Course> courseList = [];
 
-  void updateCourse(Course course) {
-    setState(() {
-      for (int i = 0; i < courseList.length; i++) {
-        if (courseList[i].id == course.id) {
-          courseList[i] = course;
-          break;
-        }
-      }
-    });
-  }
+  void updateCourse(Course course) {}
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +52,7 @@ class _SearchCoursePageState extends State<SearchCoursePage> {
             timePeriod: courseList[index].timePeriod,
             student: courseList[index].student,
             isCreator: userId == courseList[index].creator,
+            isCancellable: courseList[index].student.contains(userId),
             canEnroll: userRole == 'student' &&
                 !courseList[index].student.contains(userId),
             fatchNewCourses: _fatchNewCourses,

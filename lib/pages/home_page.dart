@@ -1,3 +1,4 @@
+import 'package:course/cache/cache.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
@@ -25,6 +26,11 @@ class HomePage extends StatelessWidget {
               },
               child: const Text('註冊'),
             ),
+            ElevatedButton(
+                onPressed: () {
+                  print('${AppCache.token}');
+                },
+                child: const Text('檢查'))
           ],
         ),
       ),

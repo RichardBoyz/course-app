@@ -1,4 +1,6 @@
+import 'package:course/arguments/edit_course_page.dart';
 import 'package:course/cache/cache.dart';
+import 'package:course/models/course_model.dart';
 import 'package:course/services/course/course_service.dart';
 import 'package:flutter/material.dart';
 
@@ -11,22 +13,25 @@ class CourseTile extends StatelessWidget {
   final bool isCreator;
   final bool canEnroll;
   final VoidCallback fatchNewCourses;
+  final Function(Course) updateCourse;
+  final bool? isCancellable;
 
-  const CourseTile({
-    required this.courseId,
-    required this.name,
-    required this.timeWeek,
-    required this.timePeriod,
-    required this.isCreator,
-    required this.canEnroll,
-    required this.student,
-    required this.fatchNewCourses,
-  });
+  const CourseTile(
+      {required this.courseId,
+      required this.name,
+      required this.timeWeek,
+      required this.timePeriod,
+      required this.isCreator,
+      required this.canEnroll,
+      required this.student,
+      required this.fatchNewCourses,
+      required this.updateCourse,
+      this.isCancellable});
 
   @override
   Widget build(BuildContext context) {
     // 檢查是否顯示 PopupMenuButton
-    bool shouldShowMenu = canEnroll || isCreator;
+    bool shouldShowMenu = canEnroll || isCreator || (isCancellable ?? false);
 
     return ListTile(
       title: Text(name),
@@ -63,7 +68,12 @@ class CourseTile extends StatelessWidget {
                 onSelected: (String value) async {
                   // 根據選擇的值執行不同的操作
                   if (value == 'update') {
-                    // TODO: 更新操作
+                    var result = await Navigator.pushNamed(
+                        context, '/edit-course',
+                        arguments: EditCoursePageArguments(courseId));
+                    if (result != null && (result as Map)['isEdited']) {
+                      updateCourse(result['course']);
+                    }
                   } else if (value == 'addCourse') {
                     var userId = AppCache.userId;
                     var isUpdated = await enrollCourse(courseId, {
@@ -78,6 +88,13 @@ class CourseTile extends StatelessWidget {
                     var isDeleted = await deleteCourse(courseId);
                     if (isDeleted) {
                       SnackBar snackBar = _buildSnackBar('刪除成功');
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      fatchNewCourses();
+                    }
+                  } else if (value == 'cancelCourse') {
+                    var isCanceled = await cancelCourse(courseId);
+                    if (isCanceled) {
+                      SnackBar snackBar = _buildSnackBar('退課完成');
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                       fatchNewCourses();
                     }
@@ -106,6 +123,14 @@ class CourseTile extends StatelessWidget {
                       child: ListTile(
                         leading: Icon(Icons.add_circle),
                         title: Text('加入選課'),
+                      ),
+                    ),
+                  if ((isCancellable ?? false))
+                    const PopupMenuItem<String>(
+                      value: 'cancelCourse',
+                      child: ListTile(
+                        leading: Icon(Icons.cancel),
+                        title: Text('取消課程'),
                       ),
                     ),
                 ],

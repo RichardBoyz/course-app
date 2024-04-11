@@ -42,7 +42,7 @@ class LobbyPage extends StatelessWidget {
             crossAxisSpacing: 16.0,
             mainAxisSpacing: 16.0,
           ),
-          itemCount: 4,
+          itemCount: 5,
           itemBuilder: (BuildContext context, int index) {
             return SizedBox(
               height: buttonHeight,
@@ -55,8 +55,14 @@ class LobbyPage extends StatelessWidget {
   }
 
   Widget _buildButton(BuildContext context, int index) {
-    List<Color> colors = [Colors.blue, Colors.green, Colors.orange, Colors.red];
-    List<String> texts = ['建立課程', '查詢課程', '查詢講師', '我選的課'];
+    List<Color> colors = [
+      Colors.blue,
+      Colors.green,
+      Colors.orange,
+      Colors.red,
+      Colors.purple
+    ];
+    List<String> texts = ['建立課程', '查詢課程', '查詢講師', '我選的課', '我開的課'];
 
     return ElevatedButton(
       onPressed: () => pushRoute(context, index),
@@ -87,6 +93,10 @@ class LobbyPage extends StatelessWidget {
         Navigator.pushNamed(context, '/teachers');
         break;
       case 3:
+        Navigator.pushNamed(context, '/enrolled-courses');
+        break;
+      case 4:
+        Navigator.pushNamed(context, '/my-courses');
         break;
       default:
         print('no');

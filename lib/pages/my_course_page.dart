@@ -4,16 +4,16 @@ import 'package:course/services/course/course_service.dart';
 import 'package:course/widgets/course_tile.dart';
 import 'package:flutter/material.dart';
 
-class SearchCoursePage extends StatefulWidget {
-  const SearchCoursePage({super.key});
+class MyCoursePage extends StatefulWidget {
+  const MyCoursePage({super.key});
 
   @override
-  State<SearchCoursePage> createState() => _SearchCoursePageState();
+  State<MyCoursePage> createState() => _MyCoursePageState();
 }
 
-class _SearchCoursePageState extends State<SearchCoursePage> {
+class _MyCoursePageState extends State<MyCoursePage> {
   Future<void> _getCourse() async {
-    var courses = await getCourses({});
+    var courses = await getMyCourses();
     setState(() {
       courseList = courses;
     });
@@ -61,6 +61,7 @@ class _SearchCoursePageState extends State<SearchCoursePage> {
             timePeriod: courseList[index].timePeriod,
             student: courseList[index].student,
             isCreator: userId == courseList[index].creator,
+            isCancellable: courseList[index].student.contains(userId),
             canEnroll: userRole == 'student' &&
                 !courseList[index].student.contains(userId),
             fatchNewCourses: _fatchNewCourses,
