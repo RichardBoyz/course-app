@@ -5,7 +5,8 @@ import 'package:course/widgets/course_tile.dart';
 import 'package:flutter/material.dart';
 
 class MyCoursePage extends StatefulWidget {
-  const MyCoursePage({super.key});
+  final CourseService courseService;
+  const MyCoursePage({super.key, required this.courseService});
 
   @override
   State<MyCoursePage> createState() => _MyCoursePageState();
@@ -13,7 +14,7 @@ class MyCoursePage extends StatefulWidget {
 
 class _MyCoursePageState extends State<MyCoursePage> {
   Future<void> _getCourse() async {
-    var courses = await getMyCourses();
+    var courses = await widget.courseService.getMyCourses();
     setState(() {
       courseList = courses;
     });
@@ -66,6 +67,7 @@ class _MyCoursePageState extends State<MyCoursePage> {
                 !courseList[index].student.contains(userId),
             fatchNewCourses: _fatchNewCourses,
             updateCourse: updateCourse,
+            courseService: widget.courseService,
           );
         },
       ),

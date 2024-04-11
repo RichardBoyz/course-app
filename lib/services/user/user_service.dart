@@ -6,7 +6,6 @@ Future getUsers() async {
     var response = await dio.get(
       'users',
     );
-    print(response.data);
   } catch (error) {
     print(error);
   }

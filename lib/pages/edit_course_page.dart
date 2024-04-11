@@ -7,7 +7,9 @@ import '../models/course_model.dart';
 
 class EditCoursePage extends StatefulWidget {
   final EditCoursePageArguments? args;
-  const EditCoursePage({super.key, required this.args});
+  final CourseService courseService;
+  const EditCoursePage(
+      {super.key, required this.args, required this.courseService});
 
   @override
   _EditCoursePageState createState() => _EditCoursePageState();
@@ -32,8 +34,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
   Future<void> _fetchCourseData() async {
     final courseId = widget.args!.courseId;
     try {
-      print('start');
-      Course fetchedCourse = await getCourse(courseId);
+      Course fetchedCourse = await widget.courseService.getCourse(courseId);
       Map<String, String> courseTime = fetchedCourse.getTimePeriod();
       setState(() {
         _nameController.text = fetchedCourse.name;
@@ -99,7 +100,8 @@ class _EditCoursePageState extends State<EditCoursePage> {
         '$selectedStartHour:$selectedStartMinute-$selectedEndHour:$selectedEndMinute';
     String message = '更新成功';
     try {
-      var updatedCourse = await updateCourse(widget.args!.courseId, {
+      var updatedCourse =
+          await widget.courseService.updateCourse(widget.args!.courseId, {
         'name': courseName,
         'time_period': timeText,
         'time_week': int.parse(selectedDay),

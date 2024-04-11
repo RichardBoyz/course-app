@@ -99,7 +99,7 @@ class LobbyPage extends StatelessWidget {
         Navigator.pushNamed(context, '/my-courses');
         break;
       default:
-        print('no');
+        print('Nothing');
         break;
     }
   }

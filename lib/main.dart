@@ -6,7 +6,6 @@ import 'router.dart';
 Future<void> main() async {
   await AppCache.init();
   String? token = AppCache.token;
-  print('1111 $token');
   Network.init(token);
   runApp(MyApp(
     initialRoute: token == null ? '/' : '/lobby',

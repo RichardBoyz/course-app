@@ -1,7 +1,9 @@
 import 'package:course/arguments/edit_course_page.dart';
 import 'package:course/cache/cache.dart';
 import 'package:course/models/course_model.dart';
+import 'package:course/models/user_model.dart';
 import 'package:course/services/course/course_service.dart';
+import 'package:course/widgets/student_list_dialog.dart';
 import 'package:flutter/material.dart';
 
 class CourseTile extends StatelessWidget {
@@ -15,6 +17,7 @@ class CourseTile extends StatelessWidget {
   final VoidCallback fatchNewCourses;
   final Function(Course) updateCourse;
   final bool? isCancellable;
+  final CourseService courseService;
 
   const CourseTile(
       {required this.courseId,
@@ -26,6 +29,7 @@ class CourseTile extends StatelessWidget {
       required this.student,
       required this.fatchNewCourses,
       required this.updateCourse,
+      required this.courseService,
       this.isCancellable});
 
   @override
@@ -76,7 +80,7 @@ class CourseTile extends StatelessWidget {
                     }
                   } else if (value == 'addCourse') {
                     var userId = AppCache.userId;
-                    var isUpdated = await enrollCourse(courseId, {
+                    var isUpdated = await courseService.enrollCourse(courseId, {
                       'student': [...student, userId]
                     });
                     if (isUpdated) {
@@ -85,19 +89,28 @@ class CourseTile extends StatelessWidget {
                       fatchNewCourses();
                     }
                   } else if (value == 'delete') {
-                    var isDeleted = await deleteCourse(courseId);
+                    var isDeleted = await courseService.deleteCourse(courseId);
                     if (isDeleted) {
                       SnackBar snackBar = _buildSnackBar('刪除成功');
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                       fatchNewCourses();
                     }
                   } else if (value == 'cancelCourse') {
-                    var isCanceled = await cancelCourse(courseId);
+                    var isCanceled = await courseService.cancelCourse(courseId);
                     if (isCanceled) {
                       SnackBar snackBar = _buildSnackBar('退課完成');
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                       fatchNewCourses();
                     }
+                  } else if (value == 'studentList') {
+                    List<User> students =
+                        await courseService.getCourseStudents(courseId);
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return StudentListDialog(students: students);
+                      },
+                    );
                   }
                 },
                 itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -115,6 +128,14 @@ class CourseTile extends StatelessWidget {
                       child: ListTile(
                         leading: Icon(Icons.delete),
                         title: Text('刪除'),
+                      ),
+                    ),
+                  if (isCreator)
+                    const PopupMenuItem<String>(
+                      value: 'studentList',
+                      child: ListTile(
+                        leading: Icon(Icons.person),
+                        title: Text('顯示學生'),
                       ),
                     ),
                   if (canEnroll)

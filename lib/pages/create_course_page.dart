@@ -3,6 +3,9 @@ import 'package:course/services/course/course_service.dart';
 import 'package:course/widgets/course_form.dart';
 
 class CreateCoursePage extends StatefulWidget {
+  final CourseService courseService;
+
+  const CreateCoursePage({super.key, required this.courseService});
   @override
   _CreateCoursePageState createState() => _CreateCoursePageState();
 }
@@ -68,7 +71,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
         '$selectedStartHour:$selectedStartMinute-$selectedEndHour:$selectedEndMinute';
     String message = '建立成功';
     try {
-      var isCreateSuccessed = await createCourse({
+      var isCreateSuccessed = await widget.courseService.createCourse({
         'name': courseName,
         'time_period': timeText,
         'time_week': int.parse(selectedDay),
